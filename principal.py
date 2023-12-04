@@ -1,5 +1,6 @@
 from flask import Flask,render_template,request,redirect,session
 from flaskext.mysql import MySQL
+from inportaciones import Metodos
 aplicacion=Flask(__name__)
 mysql=MySQL()
 aplicacion.config['MYSQL_DATABASE_HOST']= 'localhost'
@@ -8,6 +9,12 @@ aplicacion.config['MYSQL_DATABASE_USER']= 'root'
 aplicacion.config['MYSQL_DATABASE_PASSWORD']= ''
 aplicacion.config['MYSQL_DATABASE_DB']= 'gym_control'
 mysql.init_app(aplicacion)
+
+conexion=mysql.connect()
+cursor=conexion.cursor()
+
+unidades = Metodos (mysql)
+
 @aplicacion.route("/")
 def inicio():
     return render_template("principal.html")
@@ -28,11 +35,7 @@ def mostrar():
 def create():
     nombre=request.form['nombre']
     estado=request.form['estado']
-    sql=f"INSERT INTO categoria_productos (nombre,estado) VALUES ('{nombre}','{estado}')"
-    con=mysql.connect()
-    cur=con.cursor()
-    cur.execute(sql)
-    con.commit()
+    unidades.crear([nombre,estado])
     return render_template("/agregar.html", alias=nombre)
 
 @aplicacion.route("/buscar", methods=['GET'])
